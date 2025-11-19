@@ -320,6 +320,9 @@
           <button id="clearBtn" onclick="clearResults()" disabled>
             Limpar estudos
           </button>
+          <button id="reportBtn" onclick="generateReport()" disabled>
+            Gerar relatório
+          </button>
         </div>
         <div id="resultsCollection" class="results-collection"></div>
       </section>
@@ -1113,6 +1116,7 @@
       function updateActionButtons() {
         var hasResults = resultEntries.length > 0;
         document.getElementById('clearBtn').disabled = !hasResults;
+        document.getElementById('reportBtn').disabled = !hasResults;
       }
 
       function clearResults() {
@@ -1130,6 +1134,59 @@
         document.getElementById('values').value = '';
 
         updateActionButtons();
+      }
+
+      function generateReport() {
+        if (resultEntries.length === 0) {
+          alert('Calcule um estudo antes de gerar o relatório.');
+          return;
+        }
+
+        var reportWindow = window.open('', '_blank');
+        if (!reportWindow) {
+          alert('Não foi possível abrir a janela do relatório. Verifique o bloqueador de pop-ups.');
+          return;
+        }
+
+        var styleElement = document.querySelector('style');
+        var styleContent = styleElement ? styleElement.innerHTML : '';
+        var collectionHtml = document.getElementById('resultsCollection').innerHTML;
+
+        var reportHtml =
+          '<!DOCTYPE html>' +
+          '<html>' +
+          '<head>' +
+          '<meta charset="UTF-8" />' +
+          '<title>Relatório de Capabilidade</title>' +
+          '<style>' +
+          styleContent +
+          '\nbody { padding: 24px; background: var(--bg); }' +
+          '\nheader { text-align: center; margin-bottom: 18px; }' +
+          '\nheader h1 { margin-bottom: 12px; color: var(--primary); }' +
+          '\nheader button { max-width: 260px; margin: 0 auto; }' +
+          '\n.results-collection { gap: 24px; }' +
+          '\n@media print { body { padding: 0; } }' +
+          '</style>' +
+          '</head>' +
+          '<body>' +
+          '<header>' +
+          '<h1>Relatório de Capabilidade</h1>' +
+          '<button id="printReportBtn">Imprimir / Salvar em PDF</button>' +
+          '</header>' +
+          '<main>' +
+          '<div id="reportContent" class="results-collection">' +
+          collectionHtml +
+          '</div>' +
+          '</main>' +
+          '<script>' +
+          'document.getElementById("printReportBtn").addEventListener("click", function() { window.print(); });' +
+          '</script>' +
+          '</body>' +
+          '</html>';
+
+        reportWindow.document.open();
+        reportWindow.document.write(reportHtml);
+        reportWindow.document.close();
       }
 
 
